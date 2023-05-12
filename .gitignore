@@ -1,0 +1,7 @@
+audios/
+images/
+logs/
+__pycache__/
+misc/__pycache__/
+venv/
+.idea/

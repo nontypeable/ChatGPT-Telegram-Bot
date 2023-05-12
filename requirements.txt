@@ -1,0 +1,6 @@
+openai
+pydub
+pyTelegramBotAPI
+pytesseract
+SpeechRecognition
+opencv-python
