@@ -1,2 +1,4 @@
-allowed_people = [564812359]
+import os
+
+allowed_users = map(int, os.getenv("ALLOWED_USERS_ID").split(','))
 old_message = ""

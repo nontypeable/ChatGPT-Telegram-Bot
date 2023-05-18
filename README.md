@@ -29,6 +29,11 @@ export TELEGRAM_BOT_API_KEY=<telegram_bot_api_key>
 export OPENAI_API_KEY=<openai_api_key>
 ```
 
+- Укажите разрешенные ID пользователей:
+```bash
+export ALLOWED_USERS_ID=<user_id_1>,<user_id_2>,<user_id_3>
+```
+
 > В случае необходимости, замените модель нейронной сети на нужную в файле `misc/technical_information.py`.
 
 ## Использование

@@ -16,7 +16,7 @@ bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
 # Приветствие.
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
-	if message.chat.id in technical_information.allowed_people:
+	if message.chat.id in technical_information.allowed_users:
 		bot.send_message(chat_id=message.chat.id, text=welcome_text.welcome_text)
 	else:
 		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию бота.")
@@ -25,7 +25,7 @@ def send_welcome(message):
 # Отправка запроса ChatGPT при получении сообщения в виде текста.
 @bot.message_handler(content_types=["text"])
 def neural_network_request(message):
-	if message.chat.id in technical_information.allowed_people:
+	if message.chat.id in technical_information.allowed_users:
 		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 		bot.send_message(chat_id=message.chat.id, text=chatgpt_request("gpt-3.5-turbo", 2048, 0, 0.1, message.text, technical_information.old_message))
 		bot.delete_message(message.chat.id, msg.message_id)
@@ -37,7 +37,7 @@ def neural_network_request(message):
 # Отправка запроса ChatGPT при получении текста с фото.
 @bot.message_handler(content_types=["photo"])
 def send_text_from_image(message):
-	if message.chat.id in technical_information.allowed_people:
+	if message.chat.id in technical_information.allowed_users:
 		# Загрузка изображения.
 		file = bot.get_file(message.photo[-1].file_id)
 		downloaded_file = bot.download_file(file.file_path)
@@ -57,7 +57,7 @@ def send_text_from_image(message):
 # Отправка запроса ChatGPT при получении текста из голосового сообщения.
 @bot.message_handler(content_types=["voice"])
 def send_text_from_voice(message):
-	if message.chat.id in technical_information.allowed_people:
+	if message.chat.id in technical_information.allowed_users:
 		# Загрузка аудио файла.
 		file = bot.get_file(message.voice.file_id)
 		downloaded_file = bot.download_file(file.file_path)
