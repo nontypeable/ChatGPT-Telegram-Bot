@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.DEBUG,
 					filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}")
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
 
-
 # Приветствие.
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
@@ -28,8 +27,9 @@ def send_welcome(message):
 def neural_network_request(message):
 	if message.chat.id in technical_information.allowed_people:
 		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-		bot.send_message(chat_id=message.chat.id, text=chatgpt_request(message.text))
+		bot.send_message(chat_id=message.chat.id, text=chatgpt_request("gpt-3.5-turbo", 2048, 0, 0.1, message.text, technical_information.old_message))
 		bot.delete_message(message.chat.id, msg.message_id)
+		technical_information.old_message = message.text
 	else:
 		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
 

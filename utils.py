@@ -60,17 +60,19 @@ def get_text_from_voice(path: str):  # Передавать исключител
 
 
 # Метод для отправки запроса ChatGPT.
-def chatgpt_request(content: str):
+def chatgpt_request(openai_model: str, openai_max_tokens: int, openai_temperature: int, openai_top_p: int, context: str,
+					content: str):
 	openai.api_key = os.getenv("OPENAI_API_KEY")
 	try:
 		chat_completion = openai.ChatCompletion.create(
-			model=technical_information.openai_gpt_model_name,
+			model=openai_model,
 			messages=[
+				{"role": "system", "content": context},
 				{"role": "user", "content": content}
 			],
-			max_tokens=technical_information.openai_gpt_max_tokens,
-			temperature=technical_information.openai_gpt_temperature,
-			top_p=technical_information.openai_gpt_top_p
+			max_tokens=openai_max_tokens,
+			temperature=openai_temperature,
+			top_p=openai_top_p
 		)
 		return chat_completion.choices[
 			0].message.content  # При смене модели может понадобиться корректирование этой строки.
