@@ -5,11 +5,13 @@ import openai
 import pytesseract
 import speech_recognition as sr
 from pydub import AudioSegment
-
+import telebot
+# from main import bot
 from misc import technical_information
 
+# TODO: Декоратор для аутентификации пользователей.
 
-# Метод для инициализации необходимых для работы бота директорий.
+# Метод декоратор для аутентификации пользователя.
 def initialization():
 	try:
 		if not os.path.exists("audios"):
@@ -21,8 +23,10 @@ def initialization():
 	except Exception as e:
 		print(e)
 
+# Метод для инициализации необходимых для работы бота директорий.
 
-# Метод для получения текста с изображения. (beta)
+
+
 def get_text_from_image(path: str):  # В абсолютном пути к файлу не указывать его расширение!
 	try:
 		img = cv2.imread(path)
@@ -33,6 +37,7 @@ def get_text_from_image(path: str):  # В абсолютном пути к фа�
 		return text
 	except:
 		return "Произошла ошибка, попробуйте ещё раз чуть позже."
+# Метод для получения текста с изображения. (beta)
 
 
 # Метод для конвертирования голосового сообщения в формат wav. (beta)
@@ -60,7 +65,7 @@ def get_text_from_voice(path: str):  # Передавать исключител
 
 
 # Метод для отправки запроса ChatGPT.
-def chatgpt_request(openai_model: str, openai_max_tokens: int, openai_temperature: int, openai_top_p: int, context: str,
+def chatgpt_request(*, openai_model="gpt-3.5-turbo", openai_max_tokens=2048, openai_temperature=0, openai_top_p=0.1, context: str,
 					content: str):
 	openai.api_key = os.getenv("OPENAI_API_KEY")
 	try:

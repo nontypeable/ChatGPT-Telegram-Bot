@@ -13,13 +13,14 @@ logging.basicConfig(level=logging.DEBUG,
 					filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}")
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
 
+
 # Приветствие.
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
 	if message.chat.id in technical_information.allowed_users:
 		bot.send_message(chat_id=message.chat.id, text=welcome_text.welcome_text)
 	else:
-		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию бота.")
+		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
 
 
 # Отправка запроса ChatGPT при получении сообщения в виде текста.
@@ -27,7 +28,7 @@ def send_welcome(message):
 def neural_network_request(message):
 	if message.chat.id in technical_information.allowed_users:
 		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-		bot.send_message(chat_id=message.chat.id, text=chatgpt_request("gpt-3.5-turbo", 2048, 0, 0.1, message.text, technical_information.old_message))
+		bot.send_message(chat_id=message.chat.id, text=chatgpt_request(content=message.text, context=technical_information.old_message))
 		bot.delete_message(message.chat.id, msg.message_id)
 		technical_information.old_message = message.text
 	else:
@@ -48,7 +49,7 @@ def send_text_from_image(message):
 		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 		text = get_text_from_image(path)
 		reply_msg = bot.send_message(chat_id=message.chat.id, text=text)
-		bot.reply_to(message=reply_msg, text=chatgpt_request(text))
+		bot.reply_to(message=reply_msg, text=chatgpt_request(content=text,context=technical_information.old_message))
 		bot.delete_message(message.chat.id, msg.message_id)
 	else:
 		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
@@ -68,7 +69,7 @@ def send_text_from_voice(message):
 		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 		text = get_text_from_voice(path)
 		reply_msg = bot.send_message(chat_id=message.chat.id, text=f"Я распознал вашем голосовом сообщении:\n\n{text}")
-		bot.reply_to(message=reply_msg, text=chatgpt_request(text))
+		bot.reply_to(message=reply_msg, text=chatgpt_request(content=text,context=technical_information.old_message))
 		bot.delete_message(message.chat.id, msg.message_id)
 	else:
 		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
