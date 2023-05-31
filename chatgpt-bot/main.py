@@ -10,8 +10,10 @@ import misc
 from utils.audio import Audio
 from utils.image import Image
 from utils.utils import auth, openai_request, initialization
+from dotenv import load_dotenv
 
 initialization()
+load_dotenv()
 logging.basicConfig(
 	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
 	filename=f"chatgpt-bot/logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
