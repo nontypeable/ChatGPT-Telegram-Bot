@@ -1,75 +1,66 @@
-import datetime
-import logging
-import os
-import random
+import logging, os, random, datetime
+import uuid
 
 import telebot
-
-from misc import technical_information, welcome_text
-from utils import chatgpt_request, get_text_from_voice, get_text_from_image, initialization
+import misc
+from utils import chatgpt_request, get_text_from_voice, get_text_from_image, initialization, auth, voice_message_downloader, image_downloader
+import openai
 
 initialization()
-logging.basicConfig(level=logging.DEBUG,
-					filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}")
+logging.basicConfig(
+	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
+	filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
+)
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
 
 
 # Приветствие.
 @bot.message_handler(commands=["start", "help"])
+@auth
 def send_welcome(message):
-	if message.chat.id in technical_information.allowed_users:
-		bot.send_message(chat_id=message.chat.id, text=welcome_text.welcome_text)
-	else:
-		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
+	bot.send_message(chat_id=message.chat.id, text=misc.welcome_text)
 
+
+# Метод для очистки контекста чата.
+@bot.message_handler(commands=["clearcontext"])
+@auth
+def clear_context(message):
+	chat_completion = openai.ChatCompletion()
+	chat_completion.clear()
+	bot.send_message(chat_id=message.chat.id, text="Контекст чата очищен.")
 
 # Отправка запроса ChatGPT при получении сообщения в виде текста.
 @bot.message_handler(content_types=["text"])
-def neural_network_request(message):
-	if message.chat.id in technical_information.allowed_users:
-		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-		bot.send_message(chat_id=message.chat.id, text=chatgpt_request(content=message.text, context=technical_information.old_message))
-		bot.delete_message(message.chat.id, msg.message_id)
-		technical_information.old_message = message.text
-	else:
-		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
+@auth
+def send_request_via_text(message):
+	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
+	bot.send_message(chat_id=message.chat.id,
+					 text=chatgpt_request(content=message.text, context=misc.last_message))
+	bot.delete_message(message.chat.id, msg.message_id)
+	misc.last_message = message.text
+	print(misc.last_message)
 
 
 # Отправка запроса ChatGPT при получении текста с фото.
 @bot.message_handler(content_types=["photo"])
-def send_text_from_image(message):
-	if message.chat.id in technical_information.allowed_users:
-		# Загрузка изображения.
-		file = bot.get_file(message.photo[-1].file_id)
-		downloaded_file = bot.download_file(file.file_path)
-		path = f"./images/{str(random.randint(1, 10000))}"
-		with open(path, "wb") as new_file:
-			new_file.write(downloaded_file)
+@auth
+def send_request_via_image(message):
+	path = f"{os.path.dirname(os.path.realpath(__file__))}/images/{str(uuid.uuid4())}"
+	text = get_text_from_image(path, message)
 
-		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-		text = get_text_from_image(path)
-		reply_msg = bot.send_message(chat_id=message.chat.id, text=text)
-		bot.reply_to(message=reply_msg, text=chatgpt_request(content=text,context=technical_information.old_message))
-		bot.delete_message(message.chat.id, msg.message_id)
-	else:
-		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
+	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}", parse_mode="Markdown")
+
+	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
+	bot.reply_to(message=reply_msg, text=chatgpt_request(content=text, context=misc.last_message))
+	bot.delete_message(message.chat.id, msg.message_id)
 
 
 # Отправка запроса ChatGPT при получении текста из голосового сообщения.
 @bot.message_handler(content_types=["voice"])
-def send_text_from_voice(message):
-	if message.chat.id in technical_information.allowed_users:
-		# Загрузка аудио файла.
-		file = bot.get_file(message.voice.file_id)
-		downloaded_file = bot.download_file(file.file_path)
-		path = f"./audios/{str(random.randint(10001, 20000))}"
-		with open(f"{path}.ogg", "wb") as new_file:
-			new_file.write(downloaded_file)
+@auth
+def send_request_via_voice(message):
+	image_path = f"{os.path.dirname(os.path.realpath(__file__))}/audios/{str(uuid.uuid4())}"
+	voice_message_text = get_text_from_voice(image_path, message)
 
-		msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-		text = get_text_from_voice(path)
-		reply_msg = bot.send_message(chat_id=message.chat.id, text=f"Я распознал вашем голосовом сообщении:\n\n{text}")
-		bot.reply_to(message=reply_msg, text=chatgpt_request(content=text,context=technical_information.old_message))
-		bot.delete_message(message.chat.id, msg.message_id)
-	else:
-		bot.send_message(chat_id=message.chat.id, text="Вы не допущены к использованию.")
+	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{voice_message_text}", parse_mode="Markdown")
+	bot.reply_to(message=reply_msg, text=chatgpt_request(content=voice_message_text, context=misc.last_message))

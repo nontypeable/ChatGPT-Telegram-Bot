@@ -1,4 +1,4 @@
-from misc import technical_information
+last_message = ""
 
 welcome_text = f'''👋 Здравствуйте, Босс!
 
