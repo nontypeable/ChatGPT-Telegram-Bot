@@ -44,7 +44,7 @@ def clear_context(message):
 def send_request_via_text(message):
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 
-	bot.send_message(chat_id=message.chat.id, text=openai_request(content=message.text, context=misc.last_message))
+	bot.send_message(chat_id=message.chat.id, text=openai_request(content=message.text, context=misc.last_message), parse_mode="Markdown")
 	bot.delete_message(message.chat.id, msg.message_id)
 	misc.last_message = message.text
 
