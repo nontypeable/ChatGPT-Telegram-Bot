@@ -22,27 +22,23 @@ sudo apt install ffmpeg
 pip3 install -r requirements.txt
 ```
 
-- Укажите свои API ключи для использования бота:
+- Укажите свои переменные окружения для использования бота:
 
+`env.env:`
 ```bash
-export TELEGRAM_BOT_API_KEY=<telegram_bot_api_key>
-export OPENAI_API_KEY=<openai_api_key>
+TELEGRAM_BOT_API_KEY=<telegram_bot_api_key>
+OPENAI_API_KEY=<openai_api_key>
+ALLOWED_USERS_ID=<user_id_1>,<user_id_2>,<user_id_3>
 ```
 
 > Формат ID пользователей: _123456789_.
-- Укажите разрешенные ID пользователей:
-```bash
-export ALLOWED_USERS_ID=<user_id_1>,<user_id_2>,<user_id_3>
-```
-
-> В случае необходимости, замените модель нейронной сети на нужную в файле `misc/technical_information.py`.
 
 ## Использование
 
 - Запустите файл `run.py`:
 
 ```bash
-python3.11 run.py
+python run.py
 ```
 
 ## Telegram Bot API
