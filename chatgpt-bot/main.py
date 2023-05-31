@@ -16,7 +16,7 @@ initialization()
 load_dotenv("env.env")
 logging.basicConfig(
 	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
-	filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
+	filename=f"{os.path.dirname(os.path.realpath(__file__))}/logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
 )
 logger = logging.getLogger(__name__)
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
