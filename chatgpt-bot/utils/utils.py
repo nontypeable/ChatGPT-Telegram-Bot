@@ -43,7 +43,7 @@ def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, 
 def initialization():
 	path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 	try:
-		if not os.path.exists(f".{path}/audios"):
+		if not os.path.exists(f"{path}/audios"):
 			os.mkdir(f"{path}/audios")
 		if not os.path.exists(f"{path}/images"):
 			os.mkdir(f"{path}/images")

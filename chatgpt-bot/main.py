@@ -9,11 +9,12 @@ import telebot
 import misc
 from utils.audio import Audio
 from utils.image import Image
-from utils.utils import auth, openai_request
+from utils.utils import auth, openai_request, initialization
 
+initialization()
 logging.basicConfig(
 	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
-	filename=f"logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
+	filename=f"chatgpt-bot/logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
 )
 logger = logging.getLogger(__name__)
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
