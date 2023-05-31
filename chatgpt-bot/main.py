@@ -13,7 +13,7 @@ from utils.utils import auth, openai_request, initialization
 from dotenv import load_dotenv
 
 initialization()
-load_dotenv("env.env")
+load_dotenv(f"{os.path.dirname(os.path.realpath(__file__))}/env.env")
 logging.basicConfig(
 	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
 	filename=f"{os.path.dirname(os.path.realpath(__file__))}/logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
