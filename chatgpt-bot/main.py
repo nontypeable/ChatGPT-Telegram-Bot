@@ -3,23 +3,45 @@ import logging
 import os
 import uuid
 
+import flask
 import openai
 import telebot
+from dotenv import load_dotenv
+from pyngrok import ngrok
 
 import misc
 from utils.audio import Audio
 from utils.image import Image
 from utils.utils import auth, openai_request, initialization
-from dotenv import load_dotenv
 
 initialization()
 load_dotenv(f"{os.path.dirname(os.path.realpath(__file__))}/env.env")
+
 logging.basicConfig(
 	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG,
 	filename=f"{os.path.dirname(os.path.realpath(__file__))}/logs/{datetime.datetime.now().date()}_{datetime.datetime.now().time()}"
 )
 logger = logging.getLogger(__name__)
+
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
+bot.remove_webhook()
+bot.set_webhook(ngrok.connect(5000).public_url)
+
+app = flask.Flask(__name__)
+
+
+@app.route('/', methods=['POST', 'GET'])
+def index():
+	if flask.request.headers.get('content-type') == 'application/json':
+		update = telebot.types.Update.de_json(flask.request.stream.read().decode('utf-8 '))
+		bot.process_new_updates([update])
+		return ''
+	else:
+		flask.abort(403)
+	if flask.request.method == 'POST':
+		return flask.Response('ok', status=200)
+	else:
+		return ' '
 
 
 # Приветствие.
@@ -44,7 +66,8 @@ def clear_context(message):
 def send_request_via_text(message):
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 
-	bot.send_message(chat_id=message.chat.id, text=openai_request(content=message.text, context=misc.last_message), parse_mode="Markdown")
+	bot.send_message(chat_id=message.chat.id, text=openai_request(content=message.text, context=misc.last_message),
+					 parse_mode="Markdown")
 	bot.delete_message(message.chat.id, msg.message_id)
 	misc.last_message = message.text
 
@@ -58,7 +81,8 @@ def send_request_via_image(message):
 	image = Image(image_path, message)
 	text = image.image_recognition(image_path)
 
-	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}", parse_mode="Markdown")
+	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}",
+								 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 	bot.reply_to(message=reply_msg, text=openai_request(content=text, context=misc.last_message))
@@ -74,7 +98,8 @@ def send_request_via_voice(message):
 	audio = Audio(audio_path, message)
 	text = audio.voice_message_recognition(audio_path)
 
-	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{text}", parse_mode="Markdown")
+	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{text}",
+								 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 	bot.reply_to(message=reply_msg, text=openai_request(content=text, context=misc.last_message))
