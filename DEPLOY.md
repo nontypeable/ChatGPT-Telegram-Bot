@@ -1,6 +1,6 @@
 ## Деплой бота на сервер
 
-> [!info] Все дальнейшие действия предназначены для Debian 11
+> Все дальнейшие действия предназначены для Debian 11
 
 - Обновите систему:
 
@@ -23,6 +23,8 @@ cd ~/code/chatgpt-telegram-bot
 ```
 
 - Добавьте свои переменные окружения:
+
+> `ALLOWED_USERS_ID` в формате _123456789_
 
 ```bash
 nvim ~/code/chatgpt-telegram-bot/chatgpt-bot/env.env
