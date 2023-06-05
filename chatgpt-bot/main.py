@@ -82,10 +82,10 @@ def send_request_via_image(message):
 	text = image.image_recognition(image_path)
 
 	bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}",
-								 parse_mode="Markdown")
+					 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-	openai_request(content=message.text, context=misc.last_message, message=message)
+	openai_request(content=text, context=misc.last_message, message=message)
 	bot.delete_message(message.chat.id, msg.message_id)
 
 
@@ -99,8 +99,8 @@ def send_request_via_voice(message):
 	text = audio.voice_message_recognition(audio_path)
 
 	bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{text}",
-								 parse_mode="Markdown")
+					 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-	openai_request(content=message.text, context=misc.last_message, message=message)
+	openai_request(content=text, context=misc.last_message, message=message)
 	bot.delete_message(message.chat.id, msg.message_id)

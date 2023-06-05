@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+import time
 
 import openai
 import telebot
@@ -20,8 +20,7 @@ def auth(func):
 
 
 # Функция для отправки запроса openai.
-def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, temperature: int = 0,
-				   top_p: float = 0.1, *, content: str, context: str, message: telebot.types.Message):
+def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, temperature: int = 0, top_p: float = 0.1, *, content: str, context: str, message: telebot.types.Message):
 	try:
 		openai.api_key = os.getenv("OPENAI_API_KEY")
 		completion = openai.ChatCompletion.create(
@@ -34,10 +33,21 @@ def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, 
 			temperature=temperature,
 			top_p=top_p
 		)
-		main.bot.send_message(message.chat.id, completion.choices[0].message.content)
+		main.bot.send_message(message.chat.id, completion.choices[0].message.content, parse_mode="Markdown")
 	except Exception as e:
 		main.logger.exception(e)
-		main.bot.send_message(message.chat.id, "Произошла ошибка! Попробуйте ещё раз чуть позже...")
+		waiting_time = 20
+
+		msg = main.bot.send_message(message.chat.id, f"⚠️ Попробуйте отправить запрос ещё раз через {waiting_time} сек.")
+
+		while waiting_time != 0:
+			waiting_time -= 1
+			main.bot.edit_message_text(chat_id=message.chat.id, text=f"⚠️ Попробуйте отправить запрос ещё раз через {waiting_time} сек.", message_id=msg.message_id)
+			time.sleep(1)
+
+		if waiting_time == 0:
+			main.bot.delete_message(message.chat.id, msg.message_id)
+			main.bot.send_message(message.chat.id, "⚡ Отправьте запрос заново!")
 
 
 # Функция для создания необходимых для работы бота директорий.
