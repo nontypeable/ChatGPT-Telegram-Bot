@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import openai
 import telebot
@@ -20,7 +21,7 @@ def auth(func):
 
 # Функция для отправки запроса openai.
 def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, temperature: int = 0,
-				   top_p: float = 0.1, *, content: str, context: str):
+				   top_p: float = 0.1, *, content: str, context: str, message: telebot.types.Message):
 	try:
 		openai.api_key = os.getenv("OPENAI_API_KEY")
 		completion = openai.ChatCompletion.create(
@@ -33,10 +34,10 @@ def openai_request(openai_model: str = "gpt-3.5-turbo", max_tokens: int = 2048, 
 			temperature=temperature,
 			top_p=top_p
 		)
-		return completion.choices[0].message.content
+		main.bot.send_message(message.chat.id, completion.choices[0].message.content)
 	except Exception as e:
 		main.logger.exception(e)
-		return "Произошла ошибка, попробуйте ещё раз чуть позже."
+		main.bot.send_message(message.chat.id, "Произошла ошибка! Попробуйте ещё раз чуть позже...")
 
 
 # Функция для создания необходимых для работы бота директорий.

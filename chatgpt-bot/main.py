@@ -66,8 +66,8 @@ def clear_context(message):
 def send_request_via_text(message):
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
 
-	bot.send_message(chat_id=message.chat.id, text=openai_request(content=message.text, context=misc.last_message),
-					 parse_mode="Markdown")
+	openai_request(content=message.text, context=misc.last_message, message=message)
+
 	bot.delete_message(message.chat.id, msg.message_id)
 	misc.last_message = message.text
 
@@ -81,11 +81,11 @@ def send_request_via_image(message):
 	image = Image(image_path, message)
 	text = image.image_recognition(image_path)
 
-	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}",
+	bot.send_message(chat_id=message.chat.id, text=f"*Я распознал на изображении:*\n\n{text}",
 								 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-	bot.reply_to(message=reply_msg, text=openai_request(content=text, context=misc.last_message))
+	openai_request(content=message.text, context=misc.last_message, message=message)
 	bot.delete_message(message.chat.id, msg.message_id)
 
 
@@ -98,9 +98,9 @@ def send_request_via_voice(message):
 	audio = Audio(audio_path, message)
 	text = audio.voice_message_recognition(audio_path)
 
-	reply_msg = bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{text}",
+	bot.send_message(chat_id=message.chat.id, text=f"*Я распознал в голосовом сообщении:*\n\n{text}",
 								 parse_mode="Markdown")
 
 	msg = bot.send_message(chat_id=message.chat.id, text="👨‍💻 Запрос отправлен!")
-	bot.reply_to(message=reply_msg, text=openai_request(content=text, context=misc.last_message))
+	openai_request(content=message.text, context=misc.last_message, message=message)
 	bot.delete_message(message.chat.id, msg.message_id)
