@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 bot = telebot.TeleBot(os.getenv("TELEGRAM_BOT_API_KEY"))
 bot.remove_webhook()
-bot.set_webhook(ngrok.connect(5000).public_url)
+bot.set_webhook(ngrok.connect(5000, "http").public_url)
 
 app = flask.Flask(__name__)
 
